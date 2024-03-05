@@ -7,7 +7,6 @@ package graph
 import (
 	"context"
 	"fmt"
-
 	"go-graphql/graph/model"
 )
 
