@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"go-graphql/graph/model"
+	"strconv"
 )
 
 // CreateTodo is the resolver for the createTodo field.
@@ -28,3 +29,37 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+
+func (r *queryResolver) Character(ctx context.Context, id string) (*model.Character, error) {
+	character, ok := r.Resolver.CharStore[id]
+	if !ok {
+		return nil, fmt.Errorf("not found")
+	}
+	return &character, nil
+}
+
+func (r *mutationResolver) UpsertCharacter(ctx context.Context, input model.CharacterInput) (*model.Character, error) {
+	id := input.ID
+	var character model.Character
+	character.Name = input.Name
+
+	n := len(r.Resolver.CharStore)
+	if n == 0 {
+		r.Resolver.CharStore = make(map[string]model.Character)
+	}
+
+	if id != nil {
+		_, ok := r.Resolver.CharStore[*id]
+		if !ok {
+			return nil, fmt.Errorf("not found")
+		}
+		r.Resolver.CharStore[*id] = character
+	} else {
+		// generate unique id
+		nid := strconv.Itoa(n + 1)
+		character.ID = nid
+		r.Resolver.CharStore[nid] = character
+	}
+
+	return &character, nil
+}
