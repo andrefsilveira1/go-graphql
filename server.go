@@ -5,7 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"example.com/mod/graph"
+	"go-graphql/graph"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 )

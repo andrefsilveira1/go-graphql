@@ -8,7 +8,7 @@ import (
 	"context"
 	"fmt"
 
-	"example.com/mod/graph/model"
+	"go-graphql/graph/model"
 )
 
 // CreateTodo is the resolver for the createTodo field.
