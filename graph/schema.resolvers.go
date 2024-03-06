@@ -11,6 +11,14 @@ import (
 	"strconv"
 )
 
+func (r *queryResolver) Character(ctx context.Context, id string) (*model.Character, error) {
+	character, ok := r.Resolver.CharStore[id]
+	if !ok {
+		return nil, fmt.Errorf("not found")
+	}
+	return &character, nil
+}
+
 // UpsertCharacter is the resolver for the upsertCharacter field.
 func (r *mutationResolver) UpsertCharacter(ctx context.Context, input model.CharacterInput) (*model.Character, error) {
 	id := input.ID
@@ -60,11 +68,4 @@ type queryResolver struct{ *Resolver }
 //   - You have helper methods in this file. Move them out to keep these resolver files clean.
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
 	panic(fmt.Errorf("not implemented: CreateTodo - createTodo"))
-}
-func (r *queryResolver) Character(ctx context.Context, id string) (*model.Character, error) {
-	character, ok := r.Resolver.CharStore[id]
-	if !ok {
-		return nil, fmt.Errorf("not found")
-	}
-	return &character, nil
 }
