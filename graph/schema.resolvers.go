@@ -11,19 +11,12 @@ import (
 	"strconv"
 )
 
-func (r *queryResolver) Character(ctx context.Context, id string) (*model.Character, error) {
-	character, ok := r.Resolver.CharStore[id]
-	if !ok {
-		return nil, fmt.Errorf("not found")
-	}
-	return &character, nil
-}
-
 // UpsertCharacter is the resolver for the upsertCharacter field.
 func (r *mutationResolver) UpsertCharacter(ctx context.Context, input model.CharacterInput) (*model.Character, error) {
 	id := input.ID
 	var character model.Character
 	character.Name = input.Name
+	character.CliqueType = input.CliqueType
 
 	n := len(r.Resolver.CharStore)
 	if n == 0 {
@@ -31,15 +24,23 @@ func (r *mutationResolver) UpsertCharacter(ctx context.Context, input model.Char
 	}
 
 	if id != nil {
-		_, ok := r.Resolver.CharStore[*id]
+		cs, ok := r.Resolver.CharStore[*id]
 		if !ok {
 			return nil, fmt.Errorf("not found")
+		}
+		if input.IsHero != nil {
+			character.IsHero = *input.IsHero
+		} else {
+			character.IsHero = cs.IsHero
 		}
 		r.Resolver.CharStore[*id] = character
 	} else {
 		// generate unique id
 		nid := strconv.Itoa(n + 1)
 		character.ID = nid
+		if input.IsHero != nil {
+			character.IsHero = *input.IsHero
+		}
 		r.Resolver.CharStore[nid] = character
 	}
 
@@ -66,6 +67,13 @@ type queryResolver struct{ *Resolver }
 //   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //     it when you're done.
 //   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *queryResolver) Character(ctx context.Context, id string) (*model.Character, error) {
+	character, ok := r.Resolver.CharStore[id]
+	if !ok {
+		return nil, fmt.Errorf("not found")
+	}
+	return &character, nil
+}
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
 	panic(fmt.Errorf("not implemented: CreateTodo - createTodo"))
 }
